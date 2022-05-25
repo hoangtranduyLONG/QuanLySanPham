@@ -1,6 +1,7 @@
 package controller;
 
 import com.sun.deploy.security.JarSignature;
+import model.Product;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -24,31 +25,39 @@ public class ProductServlet<ProductServiceImpl> extends HttpServlet {
             case "edit":
                 showEditForm(request, response);
                 break;
+            case "delete":
+                showDeleteForm(request, response);
             default:
                 showListPage(request, response);
         }
-        private void showEditForm (HttpServletRequest request, HttpServletResponse response) throws
-        ServletException, IOException JarSignature productService;
-        {
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("product/edit.jsp");
-            int id = Integer.parseInt(request.getParameter("id"));
-            Product product = productService.findProductById(id);
-            request.setAttribute("sanPham", product);
-            requestDispatcher.forward(request, response);
-        }
+    }
 
-        private void showCreateForm (HttpServletRequest request, HttpServletResponse response) throws
-        ServletException, IOException {
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("product/create.jsp");
-            requestDispatcher.forward(request, response);
-        }
+    private void showDeleteForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        RequestDispatcher requestDispatcher = request.getRequestDispatcher("product/delete.jsp");
+        int id = Integer.parseInt(request.getParameter("id"));
+        Product product = productService.findById(id);
+        request.setAttribute("spCanXoa", product);
+        requestDispatcher.forward(request,response);
+    }
 
-        private void showListPage (HttpServletRequest request, HttpServletResponse response) throws
-        ServletException, IOException {
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("product/list.jsp");
-            List<Product> products = productService.findAll();
-            request.setAttribute("danhSach", products);
-            requestDispatcher.forward(request, response);
+    private void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        RequestDispatcher requestDispatcher = request.getRequestDispatcher("product/edit.jsp");
+        int id = Integer.parseInt(request.getParameter("id"));
+        Product product = productService.findById(id);
+        request.setAttribute("spCanSua", product);
+        requestDispatcher.forward(request,response);
+    }
+
+    private void showCreateForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        RequestDispatcher requestDispatcher = request.getRequestDispatcher("product/create.jsp");
+        requestDispatcher.forward(request,response);
+    }
+
+    private void showListPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        RequestDispatcher requestDispatcher = request.getRequestDispatcher("product/list.jsp");
+        List<Product> products = productService.findAll();
+        request.setAttribute("danhSach", products);
+        requestDispatcher.forward(request,response);
         }
         @Override
         protected void doPost (HttpServletRequest request, HttpServletResponse response) throws
@@ -59,43 +68,39 @@ public class ProductServlet<ProductServiceImpl> extends HttpServlet {
             }
             switch (action) {
                 case "create":
-                    createForm(request, response);
+                    createProduct(request, response);
                     break;
                 case "edit":
-                    editForm(request, response);
+                    editProduct(request, response);
+                    break;
+                case "delete":
+                    deleteProduct(request, response);
                     break;
             }
         }
 
-        private void editForm (HttpServletRequest request, HttpServletResponse response) throws IOException {
-            int id = Integer.parseInt(request.getParameter("id"));
-            int price = Integer.parseInt(request.getParameter("price"));
-            String name = request.getParameter("name");
-            productService.update(id, new Product(id, name, price));
-            response.sendRedirect("/products");
-        }
-
-        private void createForm (HttpServletRequest request, HttpServletResponse response) throws IOException {
-            int id = Integer.parseInt(request.getParameter("id"));
-            int price = Integer.parseInt(request.getParameter("price"));
-            String name = request.getParameter("name");
-            productService.save(new Product(id, name, price));
-            response.sendRedirect("/products");
-        }
+    private void deleteProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        productService.delete(id);
+        response.sendRedirect("/products");
+    }
+    private void editProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        int price = Integer.parseInt(request.getParameter("price"));
+        String name = request.getParameter("name");
+        String description = request.getParameter("description");
+        String producer = request.getParameter("producer");
+        productService.update(id, new Product(id, name, price, description, producer));
+        response.sendRedirect("/products");
     }
 
-    private void editForm(HttpServletRequest request, HttpServletResponse response) {
-    }
-
-    private void showListPage(HttpServletRequest request, HttpServletResponse response) {
-    }
-
-    private void createForm(HttpServletRequest request, HttpServletResponse response) {
-    }
-
-    private void showEditForm(HttpServletRequest request, HttpServletResponse response) {
-    }
-
-    private void showCreateForm(HttpServletRequest request, HttpServletResponse response) {
+    private void createProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        int price = Integer.parseInt(request.getParameter("price"));
+        String name = request.getParameter("name");
+        String description = request.getParameter("description");
+        String producer = request.getParameter("producer");
+        productService.save(new Product(id, name, price,description, producer));
+        response.sendRedirect("/products");
     }
 }
